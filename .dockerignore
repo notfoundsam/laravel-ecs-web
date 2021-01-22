@@ -1,0 +1,15 @@
+.git
+.gitignore
+.idea
+
+/node_modules
+/bootstrap/cache/*.*
+/public/storage/**
+!/public/storage/app
+!/public/storage/app/public
+!/public/storage/framework
+!/public/storage/framework/cache
+!/public/storage/framework/cache/data
+!/public/storage/framework/sessions
+!/public/storage/framework/views
+!/public/storage/logs

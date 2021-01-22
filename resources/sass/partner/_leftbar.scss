@@ -1,0 +1,53 @@
+.left-bar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: #222A30;
+  width: 240px;
+  z-index: 2;
+
+  ul.uk-nav-default > li > a {
+    padding: 8px 20px;
+    border-left: 0 solid transparent;
+    transition: border .15s ease-out;
+
+    .item {
+      transition: padding .15s ease-out;
+    }
+  }
+
+  ul.uk-nav-default > li > a:hover, ul.uk-nav-default > li.uk-open > a {
+    border-left: 2px solid #39f;
+    color: white;
+    background-color: rgba(0,0,0,0.1);
+
+    .item {
+      padding-left: 10px;
+    }
+  }
+
+  li.uk-nav-header {
+    padding:  20px 20px 8px 20px;
+  }
+
+  .yahoo-status {
+    height: 1.2em;
+    width: 1.2em;
+    margin: 0 .4em .15em 1em;
+    border-radius: 50%;
+    background-color: #d21111;
+    display: inline-block;
+    vertical-align: bottom;
+
+    &.connected {
+      background-color: #0ea70e;
+    }
+  }
+
+  .lang-padding {
+    padding: 8px 20px;
+  }
+}

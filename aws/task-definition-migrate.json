@@ -1,0 +1,53 @@
+{
+  "executionRoleArn": "arn:aws:iam::account_id:role/project_name-webTaskDefinitionRole",
+  "containerDefinitions": [
+    {
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/project_name-web/app_environment/migrate",
+          "awslogs-region": "region_name",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "command": [
+        "php",
+        "artisan",
+        "db_command",
+        "--force"
+      ],
+      "cpu": 0,
+      "environment": [
+        {
+          "name": "APP_ENV",
+          "value": "app_environment"
+        }
+      ],
+      "secrets": [
+        {
+          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name-web/app_environment/rds-host",
+          "name": "DB_HOST"
+        },
+        {
+          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name-web/app_environment/rds-user",
+          "name": "DB_USERNAME"
+        },
+        {
+          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name-web/app_environment/rds-pass",
+          "name": "DB_PASSWORD"
+        },
+        {
+          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name-web/app_environment/rds-db",
+          "name": "DB_DATABASE"
+        }
+      ],
+      "image": "account_id.dkr.ecr.region_name.amazonaws.com/project_name-php-fpm:app_environment-app_version",
+      "essential": true,
+      "name": "php-fpm"
+    }
+  ],
+  "memory": "512",
+  "family": "project_name-web-migrate",
+  "networkMode": "awsvpc",
+  "cpu": "256"
+}

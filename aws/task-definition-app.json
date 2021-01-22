@@ -1,0 +1,96 @@
+{
+  "executionRoleArn": "arn:aws:iam::account_id:role/project_name-webTaskDefinitionRole",
+  "containerDefinitions": [
+    {
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/project_name-web/app_environment/nginx",
+          "awslogs-region": "ap-northeast-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "portMappings": [
+        {
+          "hostPort": 0,
+          "protocol": "tcp",
+          "containerPort": 80
+        }
+      ],
+      "cpu": 0,
+      "image": "account_id.dkr.ecr.region_name.amazonaws.com/project_name-nginx:app_environment-app_version",
+      "essential": true,
+      "links": [
+        "php-fpm"
+      ],
+      "name": "nginx"
+    },
+    {
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/project_name-web/app_environment/php-fpm",
+          "awslogs-region": "region_name",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "cpu": 0,
+      "environment": [
+        {
+          "name": "APP_ENV",
+          "value": "app_environment"
+        }
+      ],
+      "secrets": [
+        {
+          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name-web/app_environment/app-url",
+          "name": "APP_URL"
+        },
+        {
+          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name-web/app_environment/app-key",
+          "name": "APP_KEY"
+        },
+        {
+          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name-web/app_environment/rds-host",
+          "name": "DB_HOST"
+        },
+        {
+          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name-web/app_environment/rds-user",
+          "name": "DB_USERNAME"
+        },
+        {
+          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name-web/app_environment/rds-pass",
+          "name": "DB_PASSWORD"
+        },
+        {
+          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name-web/app_environment/rds-db",
+          "name": "DB_DATABASE"
+        },
+        {
+          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name-web/app_environment/mail-from-addr",
+          "name": "MAIL_FROM_ADDRESS"
+        },
+        {
+          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name-web/app_environment/mail-from-name",
+          "name": "MAIL_FROM_NAME"
+        }
+      ],
+      "image": "account_id.dkr.ecr.region_name.amazonaws.com/project_name-php-fpm:app_environment-app_version",
+      "essential": true,
+      "name": "php-fpm"
+    }
+  ],
+  "placementConstraints": [
+    {
+      "type": "memberOf",
+      "expression": "attribute:ecs.availability-zone in [ap-northeast-1a, ap-northeast-1c]"
+    }
+  ],
+  "memory": "64",
+  "taskRoleArn": "arn:aws:iam::account_id:role/project_name-webTaskDefinitionRole",
+  "requiresCompatibilities": [
+    "EC2"
+  ],
+  "family": "project_name-web-app",
+  "cpu": "256"
+}

@@ -1,0 +1,74 @@
+version: '3.7'
+services:
+  db:
+    image: library/mysql:8.0.22
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=ebdb
+    volumes:
+      - laravel-db:/var/lib/mysql
+    ports:
+      - "3310:3306"
+    networks:
+      - laravel-net
+  nginx:
+    build:
+      context: ./docker
+      dockerfile: NginxDev.dockerfile
+    ports:
+      - "9010:80"
+    volumes:
+      - ./docker/nginxDev.conf:/etc/nginx/conf.d/default.conf
+      - ./public:/app/public
+      - ./storage/app:/app/storage
+    networks:
+      - laravel-net
+    depends_on:
+      - php-fpm
+  php-fpm:
+    build:
+      context: ./docker
+      dockerfile: PhpDev.dockerfile
+    environment:
+      XDEBUG_CONFIG: 'remote_host=${REMOTE_HOST} remote_enable=1 profiler_enable=0 profiler_output_dir=/app/storage'
+      PHP_IDE_CONFIG: "serverName=Docker"
+    user: ${CURRENT_UID}
+    volumes:
+      - ./:/app
+    networks:
+      - laravel-net
+    depends_on:
+      - db
+      - composer
+  composer:
+    image: library/composer:2.0.4
+    working_dir: /app
+    command: ["composer","install"]
+    user: ${CURRENT_UID}
+    volumes:
+      - ./:/app
+    networks:
+      - laravel-net
+  node:
+    image: node:14.15.3-slim
+    working_dir: /app
+    command: bash -c "yarn && yarn dev"
+    user: ${CURRENT_UID}
+    volumes:
+      - ./:/app
+    ports:
+      - "9011:9011"
+    networks:
+      - laravel-net
+  mail:
+    image: djfarrelly/maildev
+    ports:
+      - "1010:80"
+    networks:
+      - laravel-net
+volumes:
+  laravel-db:
+
+networks:
+  laravel-net:
+    name: laravel-net

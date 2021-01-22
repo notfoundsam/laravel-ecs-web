@@ -1,0 +1,13 @@
+{
+  "cluster": "project_name-main",
+  "taskDefinition": "project_name-web-migrate:task_revision",
+  "count": 1,
+  "launchType": "FARGATE",
+  "networkConfiguration": {
+    "awsvpcConfiguration": {
+      "securityGroups": ["sg-0f16aa9b561ff481b"],
+      "assignPublicIp": "ENABLED",
+      "subnets": ["subnet-0a7ebb79deb937d5b", "subnet-04b3625a98e1b05cf"]
+    }
+  }
+}
