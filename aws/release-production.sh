@@ -4,6 +4,7 @@ OS=$1
 PROJECT_NAME=$2
 AWS_REGION_NAME=$3
 AWS_ACCOUNT_ID=$4
+APP_ENV=production
 
 if [ $1 == 'mac' ]
 then
@@ -20,8 +21,8 @@ VERSION=$(git rev-parse --short HEAD)
 echo Relaese version:$VERSION
 
 echo Build docker images...
-docker build -q -t $AWS_ACCOUNT_ID.dkr.ecr.ap-northeast-1.amazonaws.com/$PROJECT_NAME-php-fpm:production-$VERSION -f docker/PhpProd.dockerfile .
-docker build -q -t $AWS_ACCOUNT_ID.dkr.ecr.ap-northeast-1.amazonaws.com/$PROJECT_NAME-nginx:production-$VERSION -f docker/NginxProd.dockerfile .
+docker build -q -t $AWS_ACCOUNT_ID.dkr.ecr.ap-northeast-1.amazonaws.com/$PROJECT_NAME-php-fpm:$APP_ENV-$VERSION -f docker/PhpProd.dockerfile .
+docker build -q -t $AWS_ACCOUNT_ID.dkr.ecr.ap-northeast-1.amazonaws.com/$PROJECT_NAME-nginx:$APP_ENV-$VERSION -f docker/NginxProd.dockerfile .
 
 echo Login to AWS ECR
 #aws ecr get-login --profile $PROJECT_NAME --no-include-email
@@ -35,8 +36,8 @@ else
 fi
 
 echo Push images to AWS ECR...
-docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION_NAME.amazonaws.com/$PROJECT_NAME-php-fpm:production-$VERSION
-docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION_NAME.amazonaws.com/$PROJECT_NAME-nginx:production-$VERSION
+docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION_NAME.amazonaws.com/$PROJECT_NAME-php-fpm:$APP_ENV-$VERSION
+docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION_NAME.amazonaws.com/$PROJECT_NAME-nginx:$APP_ENV-$VERSION
 if [ $? -eq 0 ]
 then
   echo Images pushed
@@ -48,8 +49,8 @@ fi
 echo Replace AWS json files
 git checkout HEAD -- aws/task-definition-app.json
 git checkout HEAD -- aws/task-definition-migrate.json
-sed -i $SED_BACK -e 's/app_environment/production/g; s/app_version/'$VERSION'/g; s/project_name/'$PROJECT_NAME'/g; s/region_name/'$AWS_REGION_NAME'/g; s/account_id/'$AWS_ACCOUNT_ID'/g;' aws/task-definition-app.json
-sed -i $SED_BACK -e 's/app_environment/production/g; s/app_version/'$VERSION'/g; s/project_name/'$PROJECT_NAME'/g; s/region_name/'$AWS_REGION_NAME'/g; s/account_id/'$AWS_ACCOUNT_ID'/g; s/db_command/migrate/g;' aws/task-definition-migrate.json
+sed -i $SED_BACK -e 's/app_environment/'$APP_ENV'/g; s/app_version/'$VERSION'/g; s/project_name/'$PROJECT_NAME'/g; s/region_name/'$AWS_REGION_NAME'/g; s/account_id/'$AWS_ACCOUNT_ID'/g' aws/task-definition-app.json
+sed -i $SED_BACK -e 's/app_environment/'$APP_ENV'/g; s/app_version/'$VERSION'/g; s/project_name/'$PROJECT_NAME'/g; s/region_name/'$AWS_REGION_NAME'/g; s/account_id/'$AWS_ACCOUNT_ID'/g; s/db_command/migrate/g' aws/task-definition-migrate.json
 
 
 echo Create task definition
@@ -77,10 +78,10 @@ TASK_REVISION_APP=$(aws --profile $PROJECT_NAME ecs register-task-definition --c
 echo Task revesion app: $TASK_REVISION_APP
 
 echo Start updating app service
-APP_OUTPUT=$(aws --profile $PROJECT_NAME ecs update-service --cluster $PROJECT_NAME-main --service $PROJECT_NAME-web-production-app --task-definition $PROJECT_NAME-web-app:$TASK_REVISION_APP)
+APP_OUTPUT=$(aws --profile $PROJECT_NAME ecs update-service --cluster $PROJECT_NAME-main --service $PROJECT_NAME-web-$APP_ENV-app --task-definition $PROJECT_NAME-web-app:$TASK_REVISION_APP)
 
 echo Waiting for service stable...
-aws --profile $PROJECT_NAME ecs wait services-stable --cluster $PROJECT_NAME-main --services $PROJECT_NAME-web-production-app
+aws --profile $PROJECT_NAME ecs wait services-stable --cluster $PROJECT_NAME-main --services $PROJECT_NAME-web-$APP_ENV-app
 
 echo Reset AWS json files
 git checkout HEAD -- aws/task-definition-app.json

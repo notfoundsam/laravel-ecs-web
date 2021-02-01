@@ -1,0 +1,106 @@
+stages:
+  - build-dependences
+  - build-image
+  - deploy-stg
+  - deploy-prod
+
+.assets:
+  image: node:14.15.3-slim
+  stage: build-dependences
+  cache:
+    paths:
+      - node_modules/
+  script:
+    - yarn install
+    - yarn prod
+  artifacts:
+    paths:
+      - public/css/
+      - public/js/
+      - public/images/
+      - public/mix-manifest.json
+
+.composer:
+  image: composer:2.0.4
+  stage: build-dependences
+  cache:
+    paths:
+      - vendor/
+  script:
+    - composer install --prefer-dist --no-dev --no-scripts -o
+  artifacts:
+    paths:
+      - vendor/
+  only:
+    - main
+
+.docker-image:
+  stage: build-image
+  dependencies:
+    - assets
+    - composer
+
+assets:
+  extends: .assets
+  tags:
+    - docker
+  only:
+    - master
+
+composer:
+  extends: .composer
+  tags:
+    - docker
+  only:
+    - main
+
+docker-image:
+  extends: .docker-image
+  tags:
+    - shell
+  script:
+    - docker build -t $IMAGE_REPO/php-fpm-laravel:v$CI_PIPELINE_IID -f docker/PhpProd.dockerfile .
+    - docker build -t $IMAGE_REPO/nginx-laravel:v$CI_PIPELINE_IID -f docker/NginxProd.dockerfile .
+    - docker login -u AWS -p $(aws ecr get-login-password --profile $PROJECT_NAME) $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION_NAME.amazonaws.com
+#    - echo "$DOCKER_HUB_PASSWORD" | docker login --username $DOCKER_HUB_LOGIN --password-stdin
+    - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION_NAME.amazonaws.com/$PROJECT_NAME-php-fpm-laravel:v$CI_PIPELINE_IID
+    - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION_NAME.amazonaws.com/$PROJECT_NAME-nginx-laravel:v$CI_PIPELINE_IID
+    - docker image prune -a --filter "until=24h" --force
+  only:
+    - main
+
+.aws-deploy:
+  #  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+  tags:
+    - shell
+  #    - docker
+  #  dependencies: []
+  script:
+    - sed -i -e 's/app_environment/'$APP_ENV'/g; s/:app_version/:v'$CI_PIPELINE_IID'/g; s/project_name/'$PROJECT_NAME'/g; s/region_name/'$AWS_REGION_NAME'/g; s/account_id/'$AWS_ACCOUNT_ID'/g' aws/task-definition-app.json
+    - sed -i -e 's/app_environment/'$APP_ENV'/g; s/:app_version/:v'$CI_PIPELINE_IID'/g; s/project_name/'$PROJECT_NAME'/g; s/region_name/'$AWS_REGION_NAME'/g; s/account_id/'$AWS_ACCOUNT_ID'/g; s/db_command/migrate/g' aws/task-definition-migrate.json
+    # for MAC
+    # - sed -i '.bak' -e 's/var/'$VAR'/g' file.json
+    - export TASK_REVISION_MIGRATE=$(aws ecs register-task-definition --cli-input-json file://aws/task-definition-migrate.json | jq --raw-output '.taskDefinition.revision')
+    - sed -i -e 's/project_name/'$PROJECT_NAME'/g; s/task_revision/'$TASK_REVISION_MIGRATE'/g' aws/run-task-migrate.json
+    - export TASK_ARN=$(aws --profile $PROJECT_NAME ecs run-task --cli-input-json file://aws/run-task-migrate.json | jq -r '.tasks[0].taskArn')
+
+    - aws --profile $PROJECT_NAME ecs wait tasks-stopped --cluster $PROJECT_NAME-main --tasks $TASK_ARN
+    - export TASK_REVISION_APP=$(aws --profile $PROJECT_NAME ecs register-task-definition --cli-input-json file://aws/task-definition-app.json | jq --raw-output '.taskDefinition.revision')
+
+    - aws --profile $PROJECT_NAME ecs update-service --cluster $PROJECT_NAME-main --service $PROJECT_NAME-web-$APP_ENV-app --task-definition $PROJECT_NAME-web-app:$TASK_REVISION_APP
+    - aws --profile $PROJECT_NAME ecs wait services-stable --cluster $PROJECT_NAME-main --services $PROJECT_NAME-web-$APP_ENV-app
+  only:
+    - main
+
+aws-deploy-stg:
+  extends: .aws-deploy
+  stage: deploy-stg
+  variables:
+    APP_ENV: staging
+
+aws-deploy-prod:
+  extends: .aws-deploy
+  stage: deploy-prod
+  variables:
+    APP_ENV: production
+  when: manual
