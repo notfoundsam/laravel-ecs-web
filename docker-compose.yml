@@ -30,7 +30,9 @@ services:
       context: ./docker
       dockerfile: PhpDev.dockerfile
     environment:
-      XDEBUG_CONFIG: 'remote_host=${REMOTE_HOST} remote_enable=1 profiler_enable=0 profiler_output_dir=/app/storage'
+      XDEBUG_MODE: debug
+#      XDEBUG_MODE: profile
+      XDEBUG_CONFIG: 'client_host=${REMOTE_HOST}'
       PHP_IDE_CONFIG: "serverName=Docker"
     user: ${CURRENT_UID}
     volumes:

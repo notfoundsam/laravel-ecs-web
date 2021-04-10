@@ -17,7 +17,7 @@ The project can be deployed from local machine or via GitLab. The infrastructure
 
 - php 7.4.12-fpm based on alpine 3.12
 - nginx 1.19.4 based on alpine latest
-- xdebug 2.9.8 (local development only)
+- xdebug 3.0.4 (local development only)
 
 ### Project configuration
 
@@ -25,6 +25,7 @@ The project can be deployed from local machine or via GitLab. The infrastructure
 - [UIkit 3.6.x](https://getuikit.com/)
 - [VueJS 2.6.x](https://vuejs.org/)
 - Email catcher [MailDev](http://maildev.github.io/maildev/) (local development only)
+- Xdebug profiler output `./storage/xdebug`
 
 ### Local development
 
