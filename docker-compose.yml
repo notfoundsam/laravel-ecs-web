@@ -30,8 +30,6 @@ services:
       context: ./docker
       dockerfile: PhpDev.dockerfile
     environment:
-      XDEBUG_MODE: debug
-#      XDEBUG_MODE: profile
       XDEBUG_CONFIG: 'client_host=${REMOTE_HOST}'
       PHP_IDE_CONFIG: "serverName=Docker"
     user: ${CURRENT_UID}
