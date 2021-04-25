@@ -12,6 +12,7 @@ The project can be deployed from local machine or via GitLab. The infrastructure
 - sed
 - jq
 - GitLab account (deploy via GitLab)
+- macOS or Linux
 
 ### Docker images configuration
 

@@ -1,8 +1,23 @@
-UID=$(id -u):$(id -g)
-RHOST='192.168.100.101'
+UID=''
+RHOST=''
+OS=''
 DCF='docker-compose.yml'
 
 AWS_PROFILE='notfoundsam'
+
+# Detect OS
+UNAME= $(shell uname -s)
+
+ifeq ($(UNAME), Linux)
+	UID=$(id -u):$(id -g)
+	RHOST='192.168.100.101'
+	OS='linux'
+endif
+ifeq ($(UNAME), Darwin)
+	UID=''
+	RHOST='host.docker.internal'
+	OS='mac'
+endif
 
 ALL: info
 info:
@@ -13,23 +28,14 @@ info:
 aws-setup:
 	pip3 install --upgrade awscli
 	aws configure --profile $(AWS_PROFILE)
-build-linux:
+build:
 	CURRENT_UID=$(value UID) docker-compose -f $(DCF) build
 	CURRENT_UID=$(value UID) docker-compose -f $(DCF) run --rm composer
 	CURRENT_UID=$(value UID) docker-compose -f $(DCF) run --rm composer composer run-script post-root-package-install
 	CURRENT_UID=$(value UID) docker-compose -f $(DCF) run --rm composer composer run-script post-create-project-cmd
 	CURRENT_UID=$(value UID) docker-compose -f $(DCF) run --rm node yarn
-build-mac:
-	docker-compose -f $(DCF) build
-	docker-compose -f $(DCF) run --rm composer
-	docker-compose -f $(DCF) run --rm composer composer run-script post-root-package-install
-	docker-compose -f $(DCF) run --rm composer composer run-script post-create-project-cmd
-	docker-compose -f $(DCF) run --rm node yarn
-up-linux:
+up:
 	CURRENT_UID=$(value UID) REMOTE_HOST=$(value RHOST) docker-compose -f $(DCF) up -d
-	make info
-up-mac:
-	REMOTE_HOST=host.docker.internal docker-compose -f $(DCF) up -d
 	make info
 stop:
 	docker-compose -f $(DCF) stop
@@ -37,8 +43,10 @@ migrate:
 	docker-compose -f $(DCF) exec php-fpm php artisan migrate
 rollback:
 	docker-compose -f $(DCF) exec php-fpm php artisan migrate:rollback
-autoload:
-	docker-compose -f $(DCF) exec php-fpm composer dump-autoload
+composer-autoload:
+	CURRENT_UID=$(value UID) docker-compose -f $(DCF) run --rm composer composer dump-autoload
+composer-update:
+	CURRENT_UID=$(value UID) docker-compose -f $(DCF) run --rm composer composer update
 refresh:
 	docker-compose -f $(DCF) exec php-fpm php artisan migrate:refresh --seed
 truncate:
@@ -52,25 +60,15 @@ route:
 	docker-compose -f $(DCF) exec php-fpm php artisan route:list
 sh-php:
 	docker-compose -f $(DCF) exec php-fpm sh
-watch-linux:
+watch:
 	CURRENT_UID=$(value UID) docker-compose -f $(DCF) run --rm node yarn
 	CURRENT_UID=$(value UID) docker-compose -f $(DCF) run --rm node yarn watch
-watch-mac:
-	docker-compose -f $(DCF) run --rm node yarn
-	docker-compose -f $(DCF) run --rm node yarn watch
-deploy-prod-mac:
-	docker-compose -f $(DCF) run --rm composer
-	docker-compose -f $(DCF) run --rm node yarn prod
-	./aws/release-production.sh mac
-deploy-prod-linux:
+deploy-prod:
 	CURRENT_UID=$(value UID) docker-compose -f $(DCF) run --rm composer
 	CURRENT_UID=$(value UID) docker-compose -f $(DCF) run --rm node yarn prod
-	./aws/release-production.sh linux
-deploy-prod-mac:
-	docker-compose -f $(DCF) run --rm composer
-	docker-compose -f $(DCF) run --rm node yarn prod
-	./aws/release-production.sh mac
-rollback-db-prod-linux:
-	./aws/rollback-db-production.sh linux
-rollback-db-prod-mac:
-	./aws/rollback-db-production.sh mac
+	./aws/release-production.sh $(OS)
+rollback-db-prod:
+	./aws/rollback-db-production.sh $(OS)
+laravel-plugins:
+	CURRENT_UID=$(value UID) docker-compose -f $(DCF) run --rm composer composer require --dev barryvdh/laravel-ide-helper
+	CURRENT_UID=$(value UID) docker-compose -f $(DCF) run --rm composer composer require --dev barryvdh/laravel-debugbar
