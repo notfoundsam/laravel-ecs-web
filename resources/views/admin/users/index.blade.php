@@ -7,7 +7,7 @@
     <div class="uk-flex uk-flex-right uk-margin-top">
       <a class="uk-button uk-button-primary" href="{{ route('admin.users.create') }}">New</a>
     </div>
-    <div class="uk-card uk-card-default uk-card-small uk-card-body uk-margin-bottom uk-margin-top">
+    <div class="uk-card uk-card-default uk-card-small uk-card-body uk-margin-bottom uk-margin-top uk-overflow-auto">
       <table class="uk-table uk-table-small uk-table-divider">
         <thead>
           <tr>

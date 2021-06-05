@@ -1,13 +1,17 @@
 .left-bar {
-  position: fixed;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  background-color: #222A30;
   width: 240px;
-  z-index: 2;
+  padding: 0;
+  background-color: #222A30;
+
+  @media only screen and (min-width: 960px) {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    z-index: 2;
+  }
 
   ul.uk-nav-default > li > a {
     padding: 8px 20px;
@@ -50,4 +54,8 @@
   .lang-padding {
     padding: 8px 20px;
   }
+}
+
+.uk-offcanvas-bar {
+  left: -240px;
 }
