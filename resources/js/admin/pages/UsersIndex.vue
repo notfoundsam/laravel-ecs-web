@@ -6,7 +6,7 @@
     <div class="uk-container uk-container-expand">
       <div class="area-users-index">
 
-        <div class="uk-card uk-card-default uk-card-small uk-width-1 uk-card-body uk-margin" v-if="showUsersTable">
+        <div class="uk-card uk-card-default uk-card-small uk-width-1 uk-card-body uk-margin uk-overflow-auto" v-if="showUsersTable">
           <table class="uk-table uk-table-small uk-table-middle uk-table-divider">
             <thead>
               <tr>

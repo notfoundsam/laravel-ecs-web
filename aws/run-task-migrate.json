@@ -5,9 +5,9 @@
   "launchType": "FARGATE",
   "networkConfiguration": {
     "awsvpcConfiguration": {
-      "securityGroups": ["sg-0f16aa9b561ff481b"],
+      "securityGroups": ["sg-your-security-group"],
       "assignPublicIp": "ENABLED",
-      "subnets": ["subnet-0a7ebb79deb937d5b", "subnet-04b3625a98e1b05cf"]
+      "subnets": ["subnet-your-subnet-1", "subnet-your-subnet-2"]
     }
   }
 }

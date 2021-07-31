@@ -1,0 +1,30 @@
+.top-bar {
+  height: 50px;
+  background-color: #222A30;
+
+  .bar-title {
+    color: #d4d4d4;
+  }
+
+  .hamburger {
+    height: 34px;
+    width: 32px;
+    margin-left: 10px;
+    padding: 0;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    cursor: pointer;
+    background-color: transparent;
+
+  }
+
+  .bar {
+    display: block;
+    width: 100%;
+    height: 4px;
+    border-radius: 1px;
+    background-color: #fff;
+  }
+}

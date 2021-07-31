@@ -15,6 +15,8 @@
 <body>
   <div id="admin_app" data-role="{{ auth()->user()->role }}">
     @include('admin.leftbar')
+    @include('admin.offcanvas')
+    @include('admin.topbar')
     <main class="content uk-background-muted" data-uk-height-viewport="expand: true">
       @yield('content')
     </main>

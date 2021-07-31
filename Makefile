@@ -10,7 +10,7 @@ UNAME= $(shell uname -s)
 
 ifeq ($(UNAME), Linux)
 	UID=$(id -u):$(id -g)
-	RHOST='192.168.100.101'
+	RHOST=$(hostname -I | awk '{print $1}')
 	OS='linux'
 endif
 ifeq ($(UNAME), Darwin)
@@ -69,6 +69,3 @@ deploy-prod:
 	./aws/release-production.sh $(OS)
 rollback-db-prod:
 	./aws/rollback-db-production.sh $(OS)
-laravel-plugins:
-	CURRENT_UID=$(value UID) docker-compose -f $(DCF) run --rm composer composer require --dev barryvdh/laravel-ide-helper
-	CURRENT_UID=$(value UID) docker-compose -f $(DCF) run --rm composer composer require --dev barryvdh/laravel-debugbar
