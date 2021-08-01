@@ -1,11 +1,11 @@
 {
-  "executionRoleArn": "arn:aws:iam::account_id:role/project_name-webTaskDefinitionRole",
+  "executionRoleArn": "arn:aws:iam::account_id:role/project_nameTaskDefinitionRole",
   "containerDefinitions": [
     {
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/project_name-web/app_environment/migrate",
+          "awslogs-group": "/ecs/project_name/app_environment/migrate",
           "awslogs-region": "region_name",
           "awslogs-stream-prefix": "ecs"
         }
@@ -25,19 +25,19 @@
       ],
       "secrets": [
         {
-          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name-web/app_environment/rds-host",
+          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name/app_environment/rds-host",
           "name": "DB_HOST"
         },
         {
-          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name-web/app_environment/rds-user",
+          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name/app_environment/rds-user",
           "name": "DB_USERNAME"
         },
         {
-          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name-web/app_environment/rds-pass",
+          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name/app_environment/rds-pass",
           "name": "DB_PASSWORD"
         },
         {
-          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name-web/app_environment/rds-db",
+          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name/app_environment/rds-db",
           "name": "DB_DATABASE"
         }
       ],
@@ -47,7 +47,7 @@
     }
   ],
   "memory": "512",
-  "family": "project_name-web-migrate",
+  "family": "project_name-migrate",
   "networkMode": "awsvpc",
   "cpu": "256"
 }

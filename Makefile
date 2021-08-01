@@ -4,6 +4,11 @@ OS=''
 DCF='docker-compose.yml'
 
 AWS_PROFILE='notfoundsam'
+AWS_REGION_NAME='ap-northeast-1'
+AWS_ACCOUNT_ID='111111111111'
+
+CLUSTER_NAME='cluster-main'
+PROJECT_NAME='laravel-ecs'
 
 # Detect OS
 UNAME= $(shell uname -s)
@@ -25,9 +30,8 @@ info:
 	@echo "[bsync] http://localhost:9011"
 	@echo "[email] http://localhost:1010"
 	@echo "[db]    http://localhost:3310"
-aws-setup:
-	pip3 install --upgrade awscli
-	aws configure --profile $(AWS_PROFILE)
+aws-configure:
+	docker run --rm -it -v ~/.aws:/root/.aws -e AWS_PROFILE=$(AWS_PROFILE) amazon/aws-cli configure
 build:
 	CURRENT_UID=$(value UID) docker-compose -f $(DCF) build
 	CURRENT_UID=$(value UID) docker-compose -f $(DCF) run --rm composer
@@ -66,6 +70,6 @@ watch:
 deploy-prod:
 	CURRENT_UID=$(value UID) docker-compose -f $(DCF) run --rm composer
 	CURRENT_UID=$(value UID) docker-compose -f $(DCF) run --rm node yarn prod
-	./aws/release-production.sh $(OS)
+	./aws/release.sh $(OS) $(AWS_PROFILE) $(AWS_ACCOUNT_ID) $(AWS_REGION_NAME) $(CLUSTER_NAME) $(PROJECT_NAME) production
 rollback-db-prod:
-	./aws/rollback-db-production.sh $(OS)
+	./aws/rollback-db.sh $(OS) $(AWS_PROFILE) $(AWS_ACCOUNT_ID) $(AWS_REGION_NAME) $(CLUSTER_NAME) $(PROJECT_NAME) production

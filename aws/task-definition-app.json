@@ -1,11 +1,11 @@
 {
-  "executionRoleArn": "arn:aws:iam::account_id:role/project_name-webTaskDefinitionRole",
+  "executionRoleArn": "arn:aws:iam::account_id:role/project_nameTaskDefinitionRole",
   "containerDefinitions": [
     {
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/project_name-web/app_environment/nginx",
+          "awslogs-group": "/ecs/project_name/app_environment/nginx",
           "awslogs-region": "ap-northeast-1",
           "awslogs-stream-prefix": "ecs"
         }
@@ -29,7 +29,7 @@
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/project_name-web/app_environment/php-fpm",
+          "awslogs-group": "/ecs/project_name/app_environment/php-fpm",
           "awslogs-region": "region_name",
           "awslogs-stream-prefix": "ecs"
         }
@@ -43,35 +43,35 @@
       ],
       "secrets": [
         {
-          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name-web/app_environment/app-url",
+          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name/app_environment/app-url",
           "name": "APP_URL"
         },
         {
-          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name-web/app_environment/app-key",
+          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name/app_environment/app-key",
           "name": "APP_KEY"
         },
         {
-          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name-web/app_environment/rds-host",
+          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name/app_environment/rds-host",
           "name": "DB_HOST"
         },
         {
-          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name-web/app_environment/rds-user",
+          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name/app_environment/rds-user",
           "name": "DB_USERNAME"
         },
         {
-          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name-web/app_environment/rds-pass",
+          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name/app_environment/rds-pass",
           "name": "DB_PASSWORD"
         },
         {
-          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name-web/app_environment/rds-db",
+          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name/app_environment/rds-db",
           "name": "DB_DATABASE"
         },
         {
-          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name-web/app_environment/mail-from-addr",
+          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name/app_environment/mail-from-addr",
           "name": "MAIL_FROM_ADDRESS"
         },
         {
-          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name-web/app_environment/mail-from-name",
+          "valueFrom": "arn:aws:ssm:region_name:account_id:parameter/project_name/app_environment/mail-from-name",
           "name": "MAIL_FROM_NAME"
         }
       ],
@@ -87,10 +87,10 @@
     }
   ],
   "memory": "64",
-  "taskRoleArn": "arn:aws:iam::account_id:role/project_name-webTaskDefinitionRole",
+  "taskRoleArn": "arn:aws:iam::account_id:role/project_nameTaskDefinitionRole",
   "requiresCompatibilities": [
     "EC2"
   ],
-  "family": "project_name-web-app",
+  "family": "project_name-app",
   "cpu": "256"
 }
