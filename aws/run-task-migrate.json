@@ -1,6 +1,6 @@
 {
-  "cluster": "project_name-main",
-  "taskDefinition": "project_name-web-migrate:task_revision",
+  "cluster": "cluster_name",
+  "taskDefinition": "task_definition_name:task_revision",
   "count": 1,
   "launchType": "FARGATE",
   "networkConfiguration": {

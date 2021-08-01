@@ -10,7 +10,6 @@ The project can be deployed from local machine or via GitLab. The infrastructure
 - Docker Compose
 - Make
 - sed
-- jq
 - GitLab account (deploy via GitLab)
 - macOS or Linux
 
@@ -26,6 +25,7 @@ The project can be deployed from local machine or via GitLab. The infrastructure
 - [UIkit 3.6.x](https://getuikit.com/)
 - [VueJS 2.6.x](https://vuejs.org/)
 - Email catcher [MailDev](http://maildev.github.io/maildev/) (local development only)
+- [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-docker.html) v2 in docker container
 
 ### Xdebug configuration
 
@@ -37,28 +37,27 @@ The project can be deployed from local machine or via GitLab. The infrastructure
 
 ### Local development
 
-0. If you use Linux in `./Makefile` change `RHOST` to your IP address. (for xdebug)
-1. Build a docker image with the following commands `make build-linux` or `make build-mac`
-2. Run the project `make up-linux` or `make up-mac`
+1. Build a docker image with the following commands `make build`
+2. Run the project `make up`
 3. Run the migration script `make migrate`
 4. Access to `http://localhost:9010` to watch web pages
 5. Access to `http://localhost:9010/admin/login` to login to Admin's pages
 6. Access to `http://localhost:9010/partner/login` to login to Partner's pages
-7. Run Yarn watch script `make watch-linux` or `make watch-mac`
+7. Run Yarn watch script `make watch`
 
 ### Prepare to deploy from a local machine
-1. In `./Makefile` change `AWS_PROFILE` to your profile name.
+1. In `./Makefile` replace `AWS_PROFILE` `AWS_REGION_NAME` `AWS_ACCOUNT_ID` `CLUSTER_NAME` `PROJECT_NAME` with yours.
 2. On AWS create a new policy `AWSClusterDeployPolicy` with content from `./aws/AWSClusterDeployPolicy.json`
 3. Create a new user `MyECSDeployUser`. Attach two policies `AmazonEC2ContainerRegistryFullAccess` and policy from step 2 to the user. Save your credentials.
 4. Run `make aws-setup` and set up your awscli. (access key, region etc.)
 5. In `.aws/run-task-migrate.json`replace `securityGroups` and `subnets` to yours. Commit these changes. (migrate the app on AWS Fargate)
 
 ### Deploy to production from a local machine
-Run `make deploy-prod-linux` or `make deploy-prod-mac`. At first, it will migrate your database in ECS Fargate then run the deployment.
+Run `make deploy-prod-`. At first, it will migrate your database in ECS Fargate then run the deployment.
 
 ### Rolling back production DB from a local machine
 1. Checkout a commit to roll back.
-2. Run `make rollback-db-prod-linux` or `make rollback-db-prod-mac`
+2. Run `make rollback-db-prod` [IN PROGRESS]
 
 ### Prepare to deploy via GitLab
 Coming soon... (see .gitlab-ci.yml)
